@@ -17,3 +17,7 @@ https://hai.stanford.edu/ai-index/2025-ai-index-report
 ### MIT AI Risk Repository
 
 https://airisk.mit.edu/
+
+### AI Watch
+
+https://www.whitecase.com/insight-our-thinking/ai-watch-global-regulatory-tracker#home
