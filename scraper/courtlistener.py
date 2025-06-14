@@ -23,6 +23,7 @@ def main():
     parser = argparse.ArgumentParser(description="CourtListener API CLI")
     parser.add_argument('--api_key', type=str, help='CourtListener API Key (overrides .env)')
     parser.add_argument('--query', type=str, required=True, help='Search query string')
+    parser.add_argument('--type', type=str, choices=['o', 'r', 'rd', 'd', 'p'], default='o', help='Type of search: o (Case law opinion clusters with nested Opinion documents), r (List of Federal cases (dockets) with up to three nested documents), rd (Federal filing documents from PACER), d (	Federal cases (dockets) from PACER), p (Judges)')
     parser.add_argument('--output_dir', type=str, default='.', help='Output directory for saving the data')
 
     args = parser.parse_args()
@@ -32,6 +33,7 @@ def main():
         raise ValueError("No API key provided. Use --api_key argument or set COURTLISTENER_API_KEY in .env")
 
     query = args.query
+    type = args.type
 
     headers = {
         'Authorization': f'Token {api_key}'
@@ -39,6 +41,7 @@ def main():
 
     params = {
         'q': query,
+        'type': type,
     }
 
     today = datetime.date.today().strftime('%Y-%m-%d')
