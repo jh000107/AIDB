@@ -1,2 +1,4 @@
 ./resources/chromedriver-mac-arm64
 .env
+.DS_Store
+__pycache__

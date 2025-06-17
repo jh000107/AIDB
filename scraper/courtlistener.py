@@ -1,34 +1,39 @@
 import os
 import argparse
 import requests
-import json
 import datetime
-from dotenv import load_dotenv
+import time
 
+from utils import update_api_key, save_data_jsonl, load_log_file, append_to_log
+from dotenv import load_dotenv
 load_dotenv()
 
-CONFIG = {
-    "API_KEY": os.getenv("COURTLISTENER_API_KEY"),
-    "BASE_URL": 'https://www.courtlistener.com/api/rest/v4/search/'
-}
-
-def save_data_jsonl(data, filepath):
-    """Append each item in the results list as a separate line in a .jsonl file."""
-    with open(filepath, 'a') as file:
-        for record in data.get('results', []):
-            json.dump(record, file)
-            file.write('\n')
 
 def main():
     parser = argparse.ArgumentParser(description="CourtListener API CLI")
-    parser.add_argument('--api_key', type=str, help='CourtListener API Key (overrides .env)')
+    parser.add_argument('--api_key', type=str, required=True, help='CourtListener API Key (overrides .env)')
+    parser.add_argument('--env_path', type=str, default='.env', help='Path to the .env file (default: .env)')
     parser.add_argument('--query', type=str, required=True, help='Search query string')
     parser.add_argument('--type', type=str, choices=['o', 'r', 'rd', 'd', 'p'], default='o', help='Type of search: o (Case law opinion clusters with nested Opinion documents), r (List of Federal cases (dockets) with up to three nested documents), rd (Federal filing documents from PACER), d (	Federal cases (dockets) from PACER), p (Judges)')
     parser.add_argument('--output_dir', type=str, default='.', help='Output directory for saving the data')
 
     args = parser.parse_args()
 
-    api_key = args.api_key if args.api_key else CONFIG['API_KEY']
+    update_api_key(api_key=args.api_key, env_path=args.env_path)
+
+    # Ensure output directory exists
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
+
+    CONFIG = {
+        "API_KEY": os.getenv("COURTLISTENER_API_KEY"),
+        "BASE_URL": 'https://www.courtlistener.com/api/rest/v4/search/'
+    }
+
+    ERROR_LOG_PATH = os.path.join(args.output_dir, 'error_log.txt')
+
+    api_key = CONFIG['API_KEY']
+
     if not api_key:
         raise ValueError("No API key provided. Use --api_key argument or set COURTLISTENER_API_KEY in .env")
 
@@ -49,7 +54,7 @@ def main():
     next_url = CONFIG['BASE_URL']
     more_pages = True
     page_count = 1
-
+    retries = 0
     while more_pages:
         print(f"Fetching page {page_count}...")
 
@@ -74,8 +79,16 @@ def main():
                 more_pages = False
                 print("All pages fetched.")
         else:
+            if retries >= 3:
+                print("Max retries reached. Exiting.")
+                break
+            
             print(f"Error fetching page {page_count}: {response.status_code} - {response.text}")
-            more_pages = False
+            append_to_log(ERROR_LOG_PATH, f"{page_count} | {next_url} | {response.status_code}")
+
+            # Sleep to avoid hitting API rate limits
+            time.sleep(5)
+            retries += 1
 
 if __name__ == "__main__":
     main()
