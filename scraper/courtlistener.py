@@ -62,7 +62,7 @@ def main():
             data = response.json()
 
             
-            output_filename = f"{today}_courtlistener_search_{query.replace(' ', '-')}_page_{page_count}.jsonl"
+            output_filename = f"{today}_courtlistener_search_type-{type}_{query.replace(' ', '-')}_page_{page_count}.jsonl"
             output_filepath = os.path.join(args.output_dir, output_filename)
 
             save_data_jsonl(data, output_filepath)
