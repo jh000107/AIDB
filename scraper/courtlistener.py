@@ -55,6 +55,7 @@ def main():
     more_pages = True
     page_count = 1
     retries = 0
+
     while more_pages:
         print(f"Fetching page {page_count}...")
 
@@ -64,8 +65,8 @@ def main():
             response = requests.get(next_url, headers=headers)
 
         if response.status_code == 200:
+            retries = 0
             data = response.json()
-
             
             output_filename = f"{today}_courtlistener_search_type-{type}_{query.replace(' ', '-')}_page_{page_count}.jsonl"
             output_filepath = os.path.join(args.output_dir, output_filename)
