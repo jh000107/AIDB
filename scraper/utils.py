@@ -51,3 +51,30 @@ def load_log_file(filepath):
 def append_to_log(filepath, line):
     with open(filepath, "a") as f:
         f.write(f"{line}\n")
+
+def merge_jsonl_files(input_dir, output_file):
+    """
+    Merges all .jsonl files in the input directory into a single .jsonl file.
+
+    Args:
+        input_dir (str): Path to the directory containing .jsonl files.
+        output_file (str): Path to the output merged .jsonl file.
+    """
+    merged_data = []
+
+    for filename in os.listdir(input_dir):
+        if filename.endswith('.jsonl'):
+            file_path = os.path.join(input_dir, filename)
+            with open(file_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    try:
+                        json_obj = json.loads(line)
+                        merged_data.append(json_obj)
+                    except json.JSONDecodeError as e:
+                        print(f"[WARN] Skipping invalid JSON in {filename}: {e}")
+
+    with open(output_file, 'w', encoding='utf-8') as out_f:
+        for item in merged_data:
+            out_f.write(json.dumps(item) + '\n')
+
+    print(f"[INFO] Merged {len(merged_data)} records into {output_file}")
