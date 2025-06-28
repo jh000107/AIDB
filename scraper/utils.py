@@ -1,5 +1,6 @@
 import os
 import json
+import yaml
 
 def update_api_key(api_key, env_path='.env'):
     """
@@ -78,3 +79,14 @@ def merge_jsonl_files(input_dir, output_file):
             out_f.write(json.dumps(item) + '\n')
 
     print(f"[INFO] Merged {len(merged_data)} records into {output_file}")
+
+def load_query_from_yaml(filepath):
+
+    with open(filepath, 'r') as f:
+        yaml_config = yaml.safe_load(f)
+    
+    query = yaml_config.get('query')
+    if not query:
+        raise ValueError("No 'query' key found in the YAML file.")
+    
+    return query  

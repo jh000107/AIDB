@@ -4,16 +4,17 @@ import requests
 import datetime
 import time
 
-from utils import update_api_key, save_data_jsonl, load_log_file, append_to_log
+from utils import update_api_key, save_data_jsonl, load_log_file, append_to_log, load_query_from_yaml
 from dotenv import load_dotenv
 load_dotenv()
+  
 
 
 def main():
     parser = argparse.ArgumentParser(description="CourtListener API CLI")
+    parser.add_argument('--mode', type=str, choices=['dev', 'prod'], default='dev', help='Mode of operation: dev (development) or prod (production)')
     parser.add_argument('--api_key', type=str, required=True, help='CourtListener API Key (overrides .env)')
     parser.add_argument('--env_path', type=str, default='.env', help='Path to the .env file (default: .env)')
-    parser.add_argument('--query', type=str, required=True, help='Search query string')
     parser.add_argument('--type', type=str, choices=['o', 'r', 'rd', 'd', 'p'], default='o', help='Type of search: o (Case law opinion clusters with nested Opinion documents), r (List of Federal cases (dockets) with up to three nested documents), rd (Federal filing documents from PACER), d (	Federal cases (dockets) from PACER), p (Judges)')
     parser.add_argument('--output_dir', type=str, default='.', help='Output directory for saving the data')
 
@@ -37,7 +38,27 @@ def main():
     if not api_key:
         raise ValueError("No API key provided. Use --api_key argument or set COURTLISTENER_API_KEY in .env")
 
-    query = args.query
+    if args.mode == 'dev':
+        query = load_query_from_yaml('./config.yaml')
+    else:
+        print("🔍 Enter search terms one by one. Type DONE when finished.")
+        terms = []
+        while True:
+            term = input("Enter a keyword: ").strip()
+            if term.upper() == 'DONE':
+                break
+            if term:
+                if " " in term:
+                    term = f'"{term}"'
+                terms.append(term)
+        
+        if not terms:
+            raise ValueError("No search terms provided. Please enter at least one term.")
+    
+        query = " OR ".join(terms)
+
+        print(f"[INTERACTIVE MODE] Final query: {query}")
+
     type = args.type
 
     headers = {
@@ -68,7 +89,7 @@ def main():
             retries = 0
             data = response.json()
             
-            output_filename = f"{today}_courtlistener_search_type-{type}_{query.replace(' ', '-')}_page_{page_count}.jsonl"
+            output_filename = f"{today}_courtlistener_search_type-{type}_page_{page_count}.jsonl"
             output_filepath = os.path.join(args.output_dir, output_filename)
 
             save_data_jsonl(data, output_filepath)
