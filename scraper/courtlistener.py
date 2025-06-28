@@ -3,11 +3,13 @@ import argparse
 import requests
 import datetime
 import time
+import json
 
 from utils import update_api_key, save_data_jsonl, load_log_file, append_to_log, load_query_from_yaml
 from dotenv import load_dotenv
 load_dotenv()
   
+
 
 
 def main():
@@ -22,14 +24,17 @@ def main():
 
     update_api_key(api_key=args.api_key, env_path=args.env_path)
 
-    # Ensure output directory exists
-    if not os.path.exists(args.output_dir):
-        os.makedirs(args.output_dir)
+    
 
     CONFIG = {
         "API_KEY": os.getenv("COURTLISTENER_API_KEY"),
-        "BASE_URL": 'https://www.courtlistener.com/api/rest/v4/search/'
+        "BASE_URL": 'https://www.courtlistener.com/api/rest/v4/search/',
+        "METADATA_FILEPATH": './scraper/metadata.jsonl'
     }
+
+    # Ensure output directory exists
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
 
     ERROR_LOG_PATH = os.path.join(args.output_dir, 'error_log.txt')
 
@@ -60,7 +65,7 @@ def main():
         print(f"[INTERACTIVE MODE] Final query: {query}")
 
     type = args.type
-
+    
     headers = {
         'Authorization': f'Token {api_key}'
     }
@@ -94,6 +99,21 @@ def main():
 
             save_data_jsonl(data, output_filepath)
 
+            # save metadata
+
+            record = {
+                "file": output_filename,
+                "query": query,
+                "type": type,
+                "timestamp": today,
+                "page": page_count,
+                "next_page": data.get('next')
+            }
+
+            with open(CONFIG['METADATA_FILEPATH'], 'a') as meta_f:
+                json.dump(record, meta_f)
+                meta_f.write('\n')
+
             next_url = data.get('next')
             if next_url:
                 page_count += 1
@@ -111,6 +131,8 @@ def main():
             # Sleep to avoid hitting API rate limits
             time.sleep(5)
             retries += 1
+
+
 
 if __name__ == "__main__":
     main()

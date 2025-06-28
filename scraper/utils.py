@@ -89,4 +89,4 @@ def load_query_from_yaml(filepath):
     if not query:
         raise ValueError("No 'query' key found in the YAML file.")
     
-    return query  
+    return query
