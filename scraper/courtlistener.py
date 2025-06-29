@@ -29,7 +29,7 @@ def main():
     CONFIG = {
         "API_KEY": os.getenv("COURTLISTENER_API_KEY"),
         "BASE_URL": 'https://www.courtlistener.com/api/rest/v4/search/',
-        "METADATA_FILEPATH": './scraper/metadata.jsonl'
+        "METADATA_FILEPATH": '../metadata.jsonl'
     }
 
     # Ensure output directory exists
@@ -44,7 +44,7 @@ def main():
         raise ValueError("No API key provided. Use --api_key argument or set COURTLISTENER_API_KEY in .env")
 
     if args.mode == 'dev':
-        query = load_query_from_yaml('./config.yaml')
+        query = load_query_from_yaml('./config.yml')
     else:
         print("🔍 Enter search terms one by one. Type DONE when finished.")
         terms = []
