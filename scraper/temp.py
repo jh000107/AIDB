@@ -1,20 +1,34 @@
-from utils import merge_jsonl_files, save_metadata
-
-# lst = ['d', 'o', 'r', 'rd']
-
-
-# for i in lst:
-#     merge_jsonl_files(input_dir=f'../courtlistener/search/{i}', output_file=f'../courtlistener/search/{i}/{i}_merged.jsonl')
+import os
+import json
 
 
-lst = []
 
-f = 'hello'
-query = 'ai'
-type = 'o'
-timestamp = 'today'
-page_count = 5
+input_dir = f'../courtlistener/search/test'
+# Load data from the specified directory
 
-save_metadata(lst, f, query, type, timestamp, page_count)
+file = None
+for filename in os.listdir(input_dir):
+    if filename.endswith('merged.jsonl'):
+        file = os.path.join(input_dir, filename)
+        break
 
-print(lst)
+if not file:
+    raise FileNotFoundError(f"No merged file found in {input_dir}")
+
+data = []
+
+with open(file, 'r', encoding='utf-8') as f:
+    for line in f:
+        try:
+            record = json.loads(line)
+            cluster_id = record.get('cluster_id')
+            absolute_url = record.get('absolute_url')
+
+
+
+            
+
+        except json.JSONDecodeError:
+            continue
+
+print(data)
