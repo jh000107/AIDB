@@ -43,9 +43,8 @@ def download_pdfs(data):
 
     for case in data:
         try:
-            record = json.loads(case)
-            opinions = record.get('opinions')
-            cluster_id = record.get('cluster_id')
+            opinions = case.get('opinions')
+            cluster_id = str(case.get('cluster_id'))
 
             output_dir = os.path.join(output_dir_base, cluster_id)
             if not os.path.exists(output_dir):

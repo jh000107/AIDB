@@ -44,7 +44,7 @@ def main():
         raise ValueError("No API key provided. Use --api_key argument or set COURTLISTENER_API_KEY in .env")
 
     if args.mode == 'dev':
-        query = load_query_from_yaml('./config.yml')
+        query = f"({load_query_from_yaml('./config.yml')}) AND dateFiled:[2025-04-30 TO *]"
     else:
         print("🔍 Enter search terms one by one. Type DONE when finished.")
         terms = []

@@ -1,3 +1,16 @@
 query: >
-  "artificial intelligence" OR "machine learning" OR "natural language processing" OR
-  "genai" OR "generative ai" OR "chatbot"
+  "artificial intelligence" OR "AI system" OR "AI model" OR "AI-generated" OR
+  "machine learning" OR "deep learning" OR "neural network" OR
+  "natural language processing" OR "NLP" OR
+  "large language model" OR "language model" OR "LLM" OR
+  "transformer model" OR "self-supervised learning" OR
+  "automated decision" OR "automated system" OR
+  "algorithmic decision-making" OR
+  "generative ai" OR "GenAI" OR "chatbot" OR
+  "AI assistant" OR "AI agent" OR "AI application" OR
+  "automated reasoning" OR "computer vision" OR
+  "deepfake" OR "voice cloning" OR
+  "OpenAI" OR "ChatGPT" OR "GPT-4" OR "GPT-3" OR
+  "Stability AI" OR "Stable Diffusion" OR
+  "Midjourney" OR "DALL-E" OR
+  "synthetic media" OR "AI-generated content"
